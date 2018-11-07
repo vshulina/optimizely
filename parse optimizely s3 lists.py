@@ -5,7 +5,7 @@ import pandas as pd
 # do not change
 endpoint = 'experiments?page=1&per_page=100&project_id=10561433763'
 
-######## VARIABLES TO BE CHANGES FOR EVERY EXPERIMENT ########
+######## VARIABLES TO BE CHANGED FOR EVERY EXPERIMENT ########
 
 # experiment name (or key) as it appears in Optimizely
 opt_exp_name = 'no-defaults'

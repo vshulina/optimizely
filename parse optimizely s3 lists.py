@@ -151,8 +151,8 @@ def create_file():
     print('Customer list created')
 
 if __name__ == '__main__':
-    #create_file()
-    print(get_experiment('no-defaults'))
+    create_file()
+    #print(get_experiment('no-defaults'))
 
 #%%
 

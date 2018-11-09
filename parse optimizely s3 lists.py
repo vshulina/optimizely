@@ -128,7 +128,9 @@ def create_file():
     
     filtered_data = df[(df.experiment_id == var_experiment_id) & 
                        (df.time_stamp >= start_date) & 
-                       (df.time_stamp <= end_date)]
+                       (df.time_stamp <= end_date) &
+                       (pd.isnull(df.event_type)) &
+                       (pd.isull(df.event_name))]
     
     #get the list by experiment 
     variation = filtered_data.groupby(['experiment_id','variation_id', 'end_user_id']) ['time_stamp'].agg(['min','max']).reset_index()
@@ -149,8 +151,8 @@ def create_file():
     print('Customer list created')
 
 if __name__ == '__main__':
-    create_file()
-    #print(get_experiment('no-defaults'))
+    #create_file()
+    print(get_experiment('no-defaults'))
 
 #%%
 

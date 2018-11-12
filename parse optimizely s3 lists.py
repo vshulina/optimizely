@@ -13,7 +13,7 @@ opt_exp_name = 'no-defaults'
 control_name = 'control'
 
 start_date = '2018-10-01'
-end_date = '2018-11-06'
+end_date = '2018-11-11'
 
 # output file name
 output_name = 'VAS_No-Defaults'
@@ -26,26 +26,6 @@ data_dir = r"/Users/viktoriya.shulina/Documents/Optimizely/Data/"
 ######## END OF VARIABLES THAT NEED TO BE CHANGED ########
 
 ### functions for getting experiment and variant id's from Optimizely API ###
-# returns experiment variations as a dictionary where key is variation name, value is variant id
-def get_variants(exp_key):
-    json_data = get_data(endpoint)
-    variants = {}
-    for exp in json_data:
-        curr_exp = exp['key']
-        if curr_exp == exp_key:
-            for var in exp['variations']:
-                variants[var['key']] = var['variation_id']
-    return variants
-
-# returns experiment id as int, based on experiment key provided
-def get_experiment(exp_key):
-    json_data = get_data(endpoint)
-    print('Retreiving experiment id...')
-    for exp in json_data:
-        curr_exp = exp['key']
-        if curr_exp == exp_key:
-            return exp['id']
-
 # connects to Optimizely API and returns response in JSON format
 def get_data(endpoint):
     conn = http.client.HTTPSConnection("api.optimizely.com")
@@ -58,10 +38,32 @@ def get_data(endpoint):
     json_response = json.loads(data)
     return json_response
 
+json_data = get_data(endpoint)
+
+# returns experiment variations as a dictionary where key is variation name, value is variant id
+def get_variants(exp_key):
+    #json_data = get_data(endpoint)
+    variants = {}
+    for exp in json_data:
+        curr_exp = exp['key']
+        if curr_exp == exp_key:
+            for var in exp['variations']:
+                variants[var['key']] = var['variation_id']
+    return variants
+
+# returns experiment id as int, based on experiment key provided
+def get_experiment(exp_key):
+   # json_data = get_data(endpoint)
+    print('Retreiving experiment id...')
+    for exp in json_data:
+        curr_exp = exp['key']
+        if curr_exp == exp_key:
+            return exp['id']
+
 # returns control group id as int, based on experiment name and control name 
 def get_control_id(exp_key, control_name):
     variants = get_variants(exp_key)
-    print('Getting control id...')
+    print('Retreiving control id...')
     if control_name in variants:
         return variants[control_name]
     else:
@@ -72,7 +74,7 @@ def get_control_id(exp_key, control_name):
 def get_variant_ids(exp_key, control_name):
     variants = get_variants(exp_key)
     var_list = []
-    print('Getting variant id...')
+    print('Retreiving variant id...')
     for v in variants:
         if v != control_name:
             var_list.append(variants[v])
@@ -82,7 +84,7 @@ def get_variant_ids(exp_key, control_name):
 def get_variant_names(exp_key, control_name):
     variants = get_variants(exp_key)
     var_list = []
-    print('Getting variant names...')
+    print('Retreiving variant names...')
     for v in variants:
         if v != control_name:
             var_list.append(v)
@@ -111,11 +113,12 @@ def create_file():
         for file in files:
             if file.endswith(".gz"):
                 path = os.path.join(root, file)
-                print(path)
+                print(path + ' extracted')
                 file_pathes.append(path)
     
     df = pd.read_csv(file_pathes[0], compression='gzip',sep='\t')
     
+    print('Processing data...')
     for file_path in file_pathes[1:]:
         new_df = pd.read_csv(file_path, compression='gzip',sep='\t')
         df = pd.concat([df, new_df])
@@ -130,7 +133,7 @@ def create_file():
                        (df.time_stamp >= start_date) & 
                        (df.time_stamp <= end_date) &
                        (pd.isnull(df.event_type)) &
-                       (pd.isull(df.event_name))]
+                       (pd.isnull(df.event_name))]
     
     #get the list by experiment 
     variation = filtered_data.groupby(['experiment_id','variation_id', 'end_user_id']) ['time_stamp'].agg(['min','max']).reset_index()
@@ -140,7 +143,7 @@ def create_file():
     
     #turn the columns to what we want
     variation.loc[variation.variation_id == control_var_id, 'ab_group'] = 'Control'
-    
+
     for i in range(var_i):
     	variation.loc[variation.variation_id == test_var_id[i], 'ab_group'] = test_var_name[i]    
     
@@ -148,7 +151,7 @@ def create_file():
     
     variation[['customer_id', 'ab_group']].to_csv((main_dir+output_name+'.csv'), index = None)
     
-    print('Customer list created')
+    print('Customer list created!')
 
 if __name__ == '__main__':
     create_file()

@@ -13,10 +13,10 @@ opt_exp_name = 'no-defaults'
 control_name = 'control'
 
 start_date = '2018-10-01'
-end_date = '2018-11-11'
+end_date = '2018-11-12'
 
 # output file name
-output_name = 'VAS_No-Defaults'
+output_name = 'VAS_No-defaults'
 
 # main working directory - where you want your CSV file saved
 main_dir = '/Users/viktoriya.shulina/Documents/Optimizely/Output/'
@@ -136,7 +136,7 @@ def create_file():
                        (pd.isnull(df.event_name))]
     
     #get the list by experiment 
-    variation = filtered_data.groupby(['experiment_id','variation_id', 'end_user_id']) ['time_stamp'].agg(['min','max']).reset_index()
+    variation = filtered_data.groupby(['experiment_id','variation_id','end_user_id','time_stamp']) ['time_stamp'].agg(['min','max']).reset_index()
     variation.rename(columns = {'end_user_id':'customer_id'}, inplace = True)
     variation['ranking'] = variation.groupby(by = 'customer_id')['min'].rank(method = 'min')
     variation = variation[variation.ranking == 1]   
@@ -149,7 +149,7 @@ def create_file():
     
     variation.groupby(by = 'ab_group').apply(lambda x: x.customer_id.nunique())
     
-    variation[['customer_id', 'ab_group']].to_csv((main_dir+output_name+'.csv'), index = None)
+    variation[['customer_id', 'ab_group', 'time_stamp']].to_csv((main_dir+output_name+'.csv'), index = None)
     
     print('Customer list created!')
 
